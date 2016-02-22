@@ -30,7 +30,9 @@ class MainController extends Controller
         }
       }
       $profit = $profit + 5.94; # adjustment
+      $projected_profit = 2374.57;
+      $percent_profit = intval(($profit / $projected_profit) * 100);
 
-      return compact('items', 'profit');
+      return compact('items', 'profit', 'percent_profit');
     }
 }

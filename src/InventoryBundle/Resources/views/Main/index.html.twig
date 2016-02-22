@@ -3,9 +3,43 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
-{% for item in items %}
-    <span>{{ item.name }}</span>
-{% endfor %}
+<h1>A&amp;M Consolided Speech and Debate - Concessions System</h1>
+<table class="table table-bordered">
+  <tr>
+    <th>Name</th>
+    <th>Quantity Sold</th>
+    <th>Sell!</th>
+  </tr>
+  {% for item in items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td><input type="number" min="1" class="form-control" value=1></td>
+        <td><button type="button" class="btn btn-danger">Sell!</button></td>
+      </tr>
+  {% endfor %}
+</table>
 
-<span>Profit: {{ profit }}</span>
+<hr>
+<div class="alert alert-info" role="alert">Profit: ${{ profit }}</div>
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent_profit }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ percent_profit }}%;">
+    {{ percent_profit }}% of Goal
+  </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+
+<style>
+body {
+  padding-top: 60px;
+}
+@media (max-width: 980px) {
+  body {
+    padding-top: 0;
+  }
+}
+</style>
+
 {% endblock %}
