@@ -31,14 +31,14 @@ class Item
     /**
      * @var string
      *
-     * @ORM\Column(name="price", type="decimal", precision=10, scale=5)
+     * @ORM\Column(name="price", type="decimal", precision=6, scale=2)
      */
     private $price;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="cost_acquisition", type="decimal", precision=10, scale=5)
+     * @ORM\Column(name="cost_acquisition", type="decimal", precision=6, scale=2)
      */
     private $costAcquisition;
 
