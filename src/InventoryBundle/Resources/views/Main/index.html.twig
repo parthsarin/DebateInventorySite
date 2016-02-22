@@ -13,12 +13,14 @@
 
 <table class="table table-bordered">
   <tr>
+    <th></th>
     <th>Name</th>
     <th>Quantity Sold</th>
     <th>Sell!</th>
   </tr>
   {% for item in items %}
       <tr>
+        <td><form class="form-inline"><div class="checkbox"><label class="checkbox-inline"><input type="checkbox" id="selectItem{{ item.id }}" class="selectItem" value=""></label></div></form></td>
         <td>{{ item.name }}</td>
         <td><input id="sellItem{{ item.id }}Count" type="number" min="1" class="form-control" value=1></td>
         <td><button id="sellItem{{ item.id }}" data-button="{{ item.id }}" type="button" class="btn btn-danger sellItem">Sell!</button></td>
