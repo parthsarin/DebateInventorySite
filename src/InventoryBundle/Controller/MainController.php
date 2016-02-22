@@ -19,22 +19,9 @@ class MainController extends Controller
       $em = $this->getDoctrine()->getManager();
       $items_unparsed = $em->getRepository('InventoryBundle:Item')->findAll();
 
-      $profit = floatval(0);
-      $items = array();
-      foreach ($items_unparsed as $item) {
-        $profit = $profit - floatval($item->getCostAcquisition()) * floatval($item->getInitialQuantity());
-        $profit = $profit + floatval($item->getPrice()) * floatval($item->getSold());
+      $profit, $items, $money_made, $percent_profit = $this->parse_items($items_unparsed);
 
-        if ($item->getPrice() != 0)
-        {
-          array_push($items, $item);
-        }
-      }
-      $profit = $profit + 5.94; # adjustment
-      $projected_profit = 2374.57;
-      $percent_profit = intval(($profit / $projected_profit) * 100);
-
-      return compact('items', 'profit', 'percent_profit');
+      return compact('items', 'profit', 'percent_profit', 'money_made');
     }
 
     /**
@@ -46,22 +33,9 @@ class MainController extends Controller
       $em = $this->getDoctrine()->getManager();
       $items_unparsed = $em->getRepository('InventoryBundle:Item')->findAll();
 
-      $profit = floatval(0);
-      $items = array();
-      foreach ($items_unparsed as $item) {
-        $profit = $profit - floatval($item->getCostAcquisition()) * floatval($item->getInitialQuantity());
-        $profit = $profit + floatval($item->getPrice()) * floatval($item->getSold());
+      $profit, $items, $money_made, $percent_profit = $this->parse_items($items_unparsed);
 
-        if ($item->getPrice() != 0)
-        {
-          array_push($items, $item);
-        }
-      }
-      $profit = $profit + 5.94; # adjustment
-      $projected_profit = 2374.57;
-      $percent_profit = intval(($profit / $projected_profit) * 100);
-
-      return compact('items', 'profit', 'percent_profit');
+      return compact('items', 'profit', 'percent_profit', 'money_made');
     }
 
     /**
@@ -90,5 +64,28 @@ class MainController extends Controller
       );
 
       return $this->redirect($this->generateUrl('index'));
+    }
+
+    public function parse_items($items_unparsed)
+    {
+      $profit = floatval(0);
+      $items = array();
+      $money_made = floatval(0);
+      foreach ($items_unparsed as $item) {
+        $profit = $profit - floatval($item->getCostAcquisition()) * floatval($item->getInitialQuantity());
+        $profit = $profit + floatval($item->getPrice()) * floatval($item->getSold());
+
+        $money_made = $money_made + floatval($item->getPrice()) * floatval($item->getSold());
+
+        if ($item->getPrice() != 0)
+        {
+          array_push($items, $item);
+        }
+      }
+      $profit = $profit + 5.94; # adjustment
+      $projected_profit = 2374.57;
+      $percent_profit = intval(($profit / $projected_profit) * 100);
+
+      return $profit, $items, $money_made, $percent_profit;
     }
 }
