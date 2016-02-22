@@ -28,6 +28,15 @@ class Category
      */
     private $name;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Item", mappedBy="category")
+     */
+    private $items;
+
+    public function __construct()
+    {
+      $this->items = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -61,5 +70,15 @@ class Category
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Get items
+     *
+     * @return array
+     */
+    public function getItems()
+    {
+      return $this->items;
     }
 }

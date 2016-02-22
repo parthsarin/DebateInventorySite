@@ -21,7 +21,9 @@ class MainController extends Controller
 
       list($profit, $items, $money_made, $percent_profit) = $this->parse_items($items_unparsed);
 
-      return compact('items', 'profit', 'percent_profit', 'money_made');
+      $categories_unparsed = $em->getRepository('InventoryBundle:Category')->findAll();
+
+      return compact('items', 'profit', 'percent_profit', 'money_made', 'categories_unparsed');
     }
 
     /**
@@ -87,5 +89,10 @@ class MainController extends Controller
       $percent_profit = intval(($profit / $projected_profit) * 100);
 
       return array($profit, $items, $money_made, $percent_profit);
+    }
+
+    public function parse_categories($categories_unparsed)
+    {
+
     }
 }
