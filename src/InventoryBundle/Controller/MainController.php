@@ -19,7 +19,7 @@ class MainController extends Controller
       $em = $this->getDoctrine()->getManager();
       $items_unparsed = $em->getRepository('InventoryBundle:Item')->findAll();
 
-      $profit, $items, $money_made, $percent_profit = $this->parse_items($items_unparsed);
+      list($profit, $items, $money_made, $percent_profit) = $this->parse_items($items_unparsed);
 
       return compact('items', 'profit', 'percent_profit', 'money_made');
     }
@@ -33,7 +33,7 @@ class MainController extends Controller
       $em = $this->getDoctrine()->getManager();
       $items_unparsed = $em->getRepository('InventoryBundle:Item')->findAll();
 
-      $profit, $items, $money_made, $percent_profit = $this->parse_items($items_unparsed);
+      list($profit, $items, $money_made, $percent_profit) = $this->parse_items($items_unparsed);
 
       return compact('items', 'profit', 'percent_profit', 'money_made');
     }
@@ -86,6 +86,6 @@ class MainController extends Controller
       $projected_profit = 2374.57;
       $percent_profit = intval(($profit / $projected_profit) * 100);
 
-      return $profit, $items, $money_made, $percent_profit;
+      return array($profit, $items, $money_made, $percent_profit);
     }
 }
