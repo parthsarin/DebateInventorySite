@@ -6,11 +6,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
+use InventoryBundle\Entity\Item;
 
 class MainController extends Controller
 {
     /**
-     * @Route("/")
+     * @Route("/", name="index")
      * @Template
      */
     public function indexAction()
@@ -37,7 +38,7 @@ class MainController extends Controller
     }
 
     /**
-     * @Route("/progress")
+     * @Route("/progress", name="progress")
      * @Template
      */
     public function progressAction()
@@ -61,5 +62,33 @@ class MainController extends Controller
       $percent_profit = intval(($profit / $projected_profit) * 100);
 
       return compact('items', 'profit', 'percent_profit');
+    }
+
+    /**
+     * @Route("/post/{id}/{count}", name="update")
+     */
+    public function updateAction(Item $item, $count)
+    {
+      // Sanity Check
+      if (is_null($item))
+      {
+        throw new Exception('Item not found');
+      }
+      if (!is_numeric($count))
+      {
+        throw new Exception('Sanity check on count integer failed');
+      }
+
+      // Persist
+      $em = $this->getDoctrine()->getManager();
+      $item->setSold($item->getSold() + $count);
+      $em->flush();
+
+      $this->addFlash(
+        'notice-success',
+        'Successfully updated database.'
+      );
+
+      return $this->redirect($this->generateUrl('index'));
     }
 }

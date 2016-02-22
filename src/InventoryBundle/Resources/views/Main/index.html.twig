@@ -4,6 +4,13 @@
 
 {% block body %}
 <h1>A&amp;M Consolided Speech and Debate - Concessions System</h1>
+{% for flashMessage in app.session.flashBag.get('notice-success') %}
+    <div class="alert alert-success alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      {{ flashMessage }}
+    </div>
+{% endfor %}
+
 <table class="table table-bordered">
   <tr>
     <th>Name</th>
@@ -13,19 +20,15 @@
   {% for item in items %}
       <tr>
         <td>{{ item.name }}</td>
-        <td><input type="number" min="1" class="form-control" value=1></td>
-        <td><button type="button" class="btn btn-danger">Sell!</button></td>
+        <td><input id="sellItem{{ item.id }}Count" type="number" min="1" class="form-control" value=1></td>
+        <td><button id="sellItem{{ item.id }}" data-button="{{ item.id }}" type="button" class="btn btn-danger sellItem">Sell!</button></td>
       </tr>
   {% endfor %}
 </table>
 
 <hr>
 <div class="alert alert-info" role="alert">Profit: ${{ profit }}</div>
-<div class="progress">
-  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent_profit }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ percent_profit }}%;">
-    {{ percent_profit }}% of Goal
-  </div>
-</div>
+
 {% endblock %}
 
 {% block stylesheets %}
@@ -42,4 +45,20 @@ body {
 }
 </style>
 
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(document).ready(function () {
+  $('.sellItem').on('click', function () {
+    var itemId = $(this).attr('data-button');
+    var count = $('#' + $(this).attr('id') + 'Count').val();
+    var template = "{{ url('update', {'id': "itemId", 'count': "count" }) }}";
+    var location = template.replace("itemId", itemId).replace("count", count);
+
+    window.location.replace(location);
+  });
+});
+</script>
 {% endblock %}
