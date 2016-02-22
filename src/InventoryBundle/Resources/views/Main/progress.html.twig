@@ -1,0 +1,29 @@
+{% extends 'InventoryBundle::layout.html.twig' %}
+
+{% block title %}Progress{% endblock %}
+
+{% block body %}
+<h1>A&amp;M Consolided Speech and Debate - Progress</h1>
+<table class="table table-bordered">
+  <tr>
+    <th>Name</th>
+    <th>Amount Sold</th>
+    <th>Money Made</th>
+  </tr>
+  {% for item in items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.sold }}</td>
+        <td>${{ item.sold * item.price }}</td>
+      </tr>
+  {% endfor %}
+</table>
+
+<hr>
+<div class="alert alert-info" role="alert">Profit: ${{ profit }}</div>
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percent_profit }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ percent_profit }}%;">
+    {{ percent_profit }}% of Goal
+  </div>
+</div>
+{% endblock %}
