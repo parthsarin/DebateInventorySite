@@ -1,0 +1,11 @@
+{% extends 'InventoryBundle::layout.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+{% for item in items %}
+    <span>{{ item.name }}</span>
+{% endfor %}
+
+<span>Profit: {{ profit }}</span>
+{% endblock %}
