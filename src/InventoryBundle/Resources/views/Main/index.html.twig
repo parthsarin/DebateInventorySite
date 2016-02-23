@@ -4,6 +4,7 @@
 
 {% block body %}
 <h1>A&amp;M Consolided Speech and Debate - Concessions System</h1>
+<div class="alerts"></div>
 {% for flashMessage in app.session.flashBag.get('notice-success') %}
     <div class="alert alert-success alert-dismissable">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -18,14 +19,14 @@
     <th>Quantity Sold</th>
     <th>Sell!</th>
   </tr>
-  {% for category in categories_unparsed %}
+  {% for category in categories %}
       <tr>
         <td colspan="4"><b>{{ category.name }}</b></td>
       </tr>
       <tr>
         {% for item in category.items %}
         <tr>
-          <td><form class="form-inline"><div class="checkbox"><label class="checkbox-inline"><input type="checkbox" id="selectItem{{ item.id }}" class="selectItem" value=""></label></div></form></td>
+          <td><form class="form-inline"><div class="checkbox"><label class="checkbox-inline"><input type="checkbox" data-button="{{ item.id }}"  data-item-name="{{ item.name }}" id="selectItem{{ item.id }}" class="selectItem" value=""></label></div></form></td>
           <td>{{ item.name }}</td>
           <td><input id="sellItem{{ item.id }}Count" type="number" min="1" class="form-control" value=1></td>
           <td><button id="sellItem{{ item.id }}" data-button="{{ item.id }}" type="button" class="btn btn-danger sellItem">Sell!</button></td>
@@ -33,15 +34,18 @@
         {% endfor %}
       </tr>
   {% endfor %}
-  {# {% for item in items %}
-      <tr>
-        <td><form class="form-inline"><div class="checkbox"><label class="checkbox-inline"><input type="checkbox" id="selectItem{{ item.id }}" class="selectItem" value=""></label></div></form></td>
-        <td>{{ item.name }}</td>
-        <td><input id="sellItem{{ item.id }}Count" type="number" min="1" class="form-control" value=1></td>
-        <td><button id="sellItem{{ item.id }}" data-button="{{ item.id }}" type="button" class="btn btn-danger sellItem">Sell!</button></td>
-      </tr>
-  {% endfor %} #}
 </table>
+
+<h2>Sell Multiple</h2>
+<div class="row">
+  <div class="col-md-6">
+    <select multiple name="sellItemsSelect" id="sellItemsSelect" class="form-control sellItemsSelect" disabled>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <button class="pull-right btn btn-danger sellItemsSelect" id="sellItemsSelectButton">Sell Multiple!</button>
+  </div>
+</div>
 
 <hr>
 <div class="alert alert-info" role="alert">Money Made: ${{ money_made }}</div>
@@ -72,10 +76,60 @@ $(document).ready(function () {
   $('.sellItem').on('click', function () {
     var itemId = $(this).attr('data-button');
     var count = $('#' + $(this).attr('id') + 'Count').val();
-    var template = "{{ url('update', {'id': "itemId", 'count': "count" }) }}";
-    var location = template.replace("itemId", itemId).replace("count", count);
 
-    window.location.replace(location);
+    $.post("{{ url('update') }}", {'data': [
+      { 'id': itemId, 'count': count }
+    ]});
+
+    $('.alerts')
+      .append(
+        $('<div class="alert alert-success alert-dismissable" id="dbSuccessAlert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Successfully modified database.</div>')
+      );
+
+    $("#dbSuccessAlert").fadeTo(2000, 500).slideUp(500, function(){
+      $("#dbSuccessAlert").alert('close');
+    });
+  });
+
+  $('.selectItem').change(function () {
+    if ($(this).is(':checked')) {
+      var itemId = $(this).attr('data-button');
+      var itemName = $(this).attr('data-item-name');
+      var count = $('#sellItem' + itemId + 'Count').val();
+
+      $('#sellItemsSelect')
+        .append($('<option></option>')
+        .attr('value', itemName)
+        .attr('data-item-id', itemId)
+        .attr('data-item-count-call', '#sellItem' + itemId + 'Count')
+        .text(itemName));
+    } else {
+      var itemName = $(this).attr('data-item-name');
+      $('#sellItemsSelect option[value=\"' + itemName + '\"]').each(function () {
+        $(this).remove();
+      });
+    }
+  });
+
+  $('#sellItemsSelectButton').on('click', function () {
+    var data = [];
+    var options = $('#sellItemsSelect').children();
+    for (var i = 0; i < options.length; i++)
+    {
+      option = options[i];
+      data.push({'id': $(option).attr('data-item-id'), 'count': $($(option).attr('data-item-count-call')).val()});
+    }
+
+    $.post("{{ url('update') }}", {'data': data});
+
+    $('.alerts')
+      .append(
+        $('<div class="alert alert-success alert-dismissable" id="dbSuccessAlert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Successfully modified database.</div>')
+      );
+
+    $("#dbSuccessAlert").fadeTo(2000, 500).slideUp(500, function(){
+      $("#dbSuccessAlert").alert('close');
+    });
   });
 });
 </script>
