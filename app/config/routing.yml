@@ -2,3 +2,6 @@ inventory:
     resource: "@InventoryBundle/Controller/"
     type:     annotation
     prefix:   /
+
+logout:
+    path: /logout

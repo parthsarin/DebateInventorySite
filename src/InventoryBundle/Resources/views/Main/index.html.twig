@@ -3,20 +3,20 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
+{{ parent() }}
+
 <h1>A&amp;M Consolided Speech and Debate - Concessions System</h1>
 <div class="alerts"></div>
-{% for flashMessage in app.session.flashBag.get('notice-success') %}
-    <div class="alert alert-success alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-      {{ flashMessage }}
-    </div>
-{% endfor %}
-
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <b>Money In Box:</b> ${{ money|number_format(2, '.', ',') }}
+</div>
 <table class="table table-bordered">
   <tr>
     <th></th>
     <th>Name</th>
     <th>Quantity Sold</th>
+    <th>Cost</th>
   </tr>
   {% for category in categories %}
       <tr>
@@ -28,6 +28,7 @@
           <td><form class="form-inline"><div class="checkbox"><label class="checkbox-inline"><input type="checkbox" data-button="{{ item.id }}"  data-item-name="{{ item.name }}" id="selectItem{{ item.id }}" class="selectItem" value=""></label></div></form></td>
           <td>{{ item.name }}</td>
           <td><input id="sellItem{{ item.id }}Count" type="number" min="1" class="form-control" value=1></td>
+          <td>${{ item.price|number_format(2, '.', ',') }}</td>
         </tr>
         {% endfor %}
       </tr>
@@ -46,26 +47,11 @@
 </div>
 
 <hr>
-<div class="alert alert-info" role="alert">Money Made: ${{ money_made }}</div>
-<div class="alert alert-info" role="alert">Profit: ${{ profit }}</div>
+<div class="alert alert-info" role="alert">Money Made: ${{ money_made|number_format(2, '.', ',') }}</div>
+<div class="alert alert-info" role="alert">Profit: ${{ profit|number_format(2, '.', ',') }}</div>
 
 {% endblock %}
 
-{% block stylesheets %}
-{{ parent() }}
-
-<style>
-body {
-  padding-top: 60px;
-}
-@media (max-width: 980px) {
-  body {
-    padding-top: 0;
-  }
-}
-</style>
-
-{% endblock %}
 
 {% block javascripts %}
 {{ parent() }}

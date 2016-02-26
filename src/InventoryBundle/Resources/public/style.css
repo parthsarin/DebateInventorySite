@@ -1,0 +1,14 @@
+#navbarBrand {
+  background-image: url('logo.jpg');
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+body {
+  padding-top: 60px;
+}
+@media (max-width: 980px) {
+  body {
+    padding-top: 0;
+  }
+}

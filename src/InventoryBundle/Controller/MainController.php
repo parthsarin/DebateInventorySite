@@ -7,10 +7,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
+use Symfony\Component\HttpFoundation\Request;
+
 use InventoryBundle\Entity\Item;
 
 class MainController extends Controller
 {
+    const PASSWD = 'ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d';
+
     /**
      * @Route("/", name="index")
      * @Template
@@ -22,8 +26,10 @@ class MainController extends Controller
       $categories_unparsed = $em->getRepository('InventoryBundle:Category')->findAll();
 
       list($profit, $categories, $money_made, $percent_profit) = $this->parse_categories($categories_unparsed);
+      $mainmenu = $this->compile_menu();
+      $money = $this->get_money_in_box();
 
-      return compact('profit', 'percent_profit', 'money_made', 'categories');
+      return compact('profit', 'percent_profit', 'money_made', 'categories', 'mainmenu', 'money');
     }
 
     /**
@@ -36,8 +42,21 @@ class MainController extends Controller
       $items_unparsed = $em->getRepository('InventoryBundle:Item')->findAll();
 
       list($profit, $items, $money_made, $percent_profit) = $this->parse_items($items_unparsed);
+      $mainmenu = $this->compile_menu();
+      $money = $this->get_money_in_box();
 
-      return compact('items', 'profit', 'percent_profit', 'money_made');
+      return compact('items', 'profit', 'percent_profit', 'money_made', 'mainmenu', 'money');
+    }
+
+    /**
+     * @Route("/admin", name="admin")
+     * @Template
+     */
+    public function adminAction()
+    {
+      $mainmenu = $this->compile_menu();
+      $money = $this->get_money_in_box();
+      return compact('mainmenu', 'money');
     }
 
     /**
@@ -55,6 +74,7 @@ class MainController extends Controller
         $count = $individual['count'];
 
         $item = $em->getRepository('InventoryBundle:Item')->findOneBy(array('id' => $itemId));
+        $boxMoney = $em->getRepository('InventoryBundle:Box')->findAll()[0];
         // Sanity Check
         if (is_null($item))
         {
@@ -66,13 +86,56 @@ class MainController extends Controller
         }
 
         // Persist
-        $em = $this->getDoctrine()->getManager();
         $item->setSold($item->getSold() + $count);
+        $boxMoney->setMoney($boxMoney->getMoney() + $count * $item->getPrice());
         $em->flush();
       }
 
       return $this->redirect($this->generateUrl('index'));
     }
+
+    /**
+     * @Route("/login", name="login")
+     * @Template
+     */
+    public function loginAction(Request $request)
+    {
+      $authenticationUtils = $this->get('security.authentication_utils');
+
+      $error = $authenticationUtils->getLastAuthenticationError();
+      $lastUsername = $authenticationUtils->getLastUsername();
+
+      $mainmenu = $this->compile_menu();
+      return compact('error', 'lastUsername', 'mainmenu');
+    }
+
+    /**
+     * @Route("/update_box", name="update_box")
+     * @Method("POST")
+     */
+    public function updateBoxAction(Request $request)
+    {
+      if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'))
+      {
+        $boxMoney = $request->get('boxMoney');
+        $em = $this->getDoctrine()->getManager();
+
+        $money = $em->getRepository('InventoryBundle:Box')->findAll()[0];
+        $money->setMoney($boxMoney);
+
+        $em->flush();
+
+        $this->addFlash(
+            'notice',
+            'Successfully updated database'
+        );
+
+        return $this->redirect($this->generateUrl('admin'));
+      } else {
+        return $this->redirect($this->generateUrl('login'));
+      }
+    }
+
 
     public function parse_items($items_unparsed)
     {
@@ -119,5 +182,43 @@ class MainController extends Controller
       list($profit, $items, $money_made, $percent_profit) = $this->parse_items($items);
 
       return array($profit, $categories_unparsed, $money_made, $percent_profit);
+    }
+
+    private function authenticate_password($test)
+    {
+    	for ($i = 0; $i < 500; $i++) {
+    		$test = hash('sha256', $test + 'keevin');
+    	}
+
+      if ($test == self::PASSWD) {
+        return True;
+      } else { return False; }
+    }
+
+    private function compile_menu()
+    {
+      if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'))
+      {
+        return array(
+          'index' => array('url' => $this->generateUrl('index'), 'title' => 'Home'),
+          'progress' => array('url' => $this->generateUrl('progress'), 'title' => 'Progress'),
+          'admin' => array('url' => $this->generateUrl('admin'), 'title' => 'Admin'),
+          'logout' => array('url' => $this->generateUrl('logout'), 'title' => 'Logout')
+        );
+      } else {
+        return array(
+          'index' => array('url' => $this->generateUrl('index'), 'title' => 'Home'),
+          'progress' => array('url' => $this->generateUrl('progress'), 'title' => 'Progress'),
+          'login' => array('url' => $this->generateUrl('login'), 'title' => 'Login')
+        );
+      }
+    }
+
+    private function get_money_in_box()
+    {
+      $em = $this->getDoctrine()->getManager();
+      $money = $em->getRepository('InventoryBundle:Box')->findAll()[0]->getMoney();
+
+      return $money;
     }
 }

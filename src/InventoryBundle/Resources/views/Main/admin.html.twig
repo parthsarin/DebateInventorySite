@@ -1,0 +1,25 @@
+{% extends 'InventoryBundle::layout.html.twig' %}
+
+{% block title %}Admin{% endblock %}
+
+{% block body %}
+{{ parent() }}
+
+{% for flashMessage in app.session.flashBag.get('notice-success') %}
+    <div class="alert alert-success alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      {{ flashMessage }}
+    </div>
+{% endfor %}
+
+<h1>Administrative Backend</h1>
+<h2>Update Money in Box</h2>
+<form action="{{ path('update_box') }}" method="post">
+  <div class="form-group">
+    <label for="boxMoney">Money in Box</label>
+    <input type="number" id="boxMoney" name="boxMoney" class="form-control" placeholder="Current: {{ money }}">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}
